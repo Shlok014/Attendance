@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #attendance-form {
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Student Attendance System</h2>
+
+    <div id="attendance-form">
+        <input type="text" id="studentName" placeholder="Enter Your Name">
+        <button onclick="markAttendance()">Mark Attendance</button>
+    </div>
+
+    <h3>Attendance Records</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody id="attendance-list"></tbody>
+    </table>
+
+    <script>
+        function markAttendance() {
+            let name = document.getElementById("studentName").value.trim();
+            if (name === "") {
+                alert("Please enter your name!");
+                return;
+            }
+
+            let today = new Date();
+            let date = today.toISOString().split('T')[0]; // YYYY-MM-DD
+            let time = today.toLocaleTimeString();
+
+            let attendanceData = JSON.parse(localStorage.getItem("attendance")) || [];
+
+            // Prevent duplicate entries for the same student on the same day
+            let alreadyMarked = attendanceData.some(record => record.name === name && record.date === date);
+            if (alreadyMarked) {
+                alert("You have already marked your attendance for today.");
+                return;
+            }
+
+            // Save attendance
+            attendanceData.push({ name, date, time });
+            localStorage.setItem("attendance", JSON.stringify(attendanceData));
+
+            displayAttendance();
+        }
+
+        function displayAttendance() {
+            let attendanceData = JSON.parse(localStorage.getItem("attendance")) || [];
+            let tableBody = document.getElementById("attendance-list");
+            tableBody.innerHTML = "";
+
+            attendanceData.forEach(record => {
+                let row = `<tr>
+                    <td>${record.name}</td>
+                    <td>${record.date}</td>
+                    <td>${record.time}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Load attendance records on page load
+        window.onload = displayAttendance;
+    </script>
+
+</body>
+</html>
